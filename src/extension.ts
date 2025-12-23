@@ -4,6 +4,7 @@ let snowDecorations: vscode.TextEditorDecorationType[] = [];
 let snowInterval: ReturnType<typeof setInterval> | undefined;
 let isSnowEnabled = false;
 let snowPositions: { col: number; row: number; flake: string; speed: number; swayOffset: number }[] = [];
+let maxCol = 40; // Global maxCol that updates with editor changes
 
 // Get snow configuration from settings
 function getSnowConfig() {
@@ -73,12 +74,11 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.onDidChangeActiveTextEditor(editor => {
             if (isSnowEnabled && editor) {
                 // Clear old decorations and recalculate for new editor
-                // Don't restart interval, just recalculate positions
                 snowDecorations.forEach(d => d.dispose());
                 snowDecorations = [];
                 
-                // Recalculate maxCol and reset positions for new document
-                let maxCol = 40;
+                // Recalculate maxCol and update global variable
+                maxCol = 40;
                 for (let i = 0; i < editor.document.lineCount; i++) {
                     const lineLen = editor.document.lineAt(i).text.length;
                     if (lineLen > maxCol) {maxCol = lineLen;}
@@ -87,10 +87,32 @@ export function activate(context: vscode.ExtensionContext) {
                 
                 const totalLines = editor.document.lineCount;
                 const config = getSnowConfig();
+                const { shapes } = config;
                 
-                // Redistribute snowflakes evenly across new document
-                snowPositions.forEach((snow, i) => {
-                    snow.row = Math.floor((i / config.density) * totalLines);
+                // Calculate new density based on new file's line count
+                const newDensity = Math.max(10, Math.floor(totalLines * config.density / 100));
+                
+                // Adjust snowflake count
+                if (snowPositions.length < newDensity) {
+                    // Add more snowflakes
+                    const toAdd = newDensity - snowPositions.length;
+                    for (let i = 0; i < toAdd; i++) {
+                        snowPositions.push({
+                            col: Math.floor(Math.random() * maxCol),
+                            row: Math.floor(Math.random() * totalLines),
+                            flake: shapes[Math.floor(Math.random() * shapes.length)],
+                            speed: 1,
+                            swayOffset: 0
+                        });
+                    }
+                } else if (snowPositions.length > newDensity) {
+                    // Remove excess snowflakes
+                    snowPositions.length = newDensity;
+                }
+                
+                // Redistribute all snowflakes with new maxCol range
+                snowPositions.forEach((snow) => {
+                    snow.row = Math.floor(Math.random() * totalLines);
                     snow.col = Math.floor(Math.random() * maxCol);
                 });
             }
@@ -283,8 +305,8 @@ function startEditorSnow() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {return;}
 
-    // Calculate max column from entire document (not just visible)
-    let maxCol = 40;
+    // Calculate max column from entire document and update global maxCol
+    maxCol = 40;
     for (let i = 0; i < editor.document.lineCount; i++) {
         const lineLen = editor.document.lineAt(i).text.length;
         if (lineLen > maxCol) {maxCol = lineLen;}
@@ -292,12 +314,16 @@ function startEditorSnow() {
     maxCol = Math.min(maxCol, 120);
     
     const totalLines = editor.document.lineCount;
+    
+    // Calculate actual density based on document lines
+    // density setting = snowflakes per 100 lines
+    const actualDensity = Math.max(10, Math.floor(totalLines * density / 100));
 
-    // Initialize snowflakes with absolute positions, evenly distributed
-    for (let i = 0; i < density; i++) {
+    // Initialize snowflakes with absolute positions, randomly distributed
+    for (let i = 0; i < actualDensity; i++) {
         snowPositions.push({
             col: Math.floor(Math.random() * maxCol),
-            row: Math.floor((i / density) * totalLines), // evenly distribute across document
+            row: Math.floor(Math.random() * totalLines), // random distribution
             flake: shapes[Math.floor(Math.random() * shapes.length)],
             speed: 1,
             swayOffset: 0

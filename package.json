@@ -2,7 +2,7 @@
   "name": "Good-Night-Christmas",
   "displayName": "Good-Night-Christmas",
   "description": "A Christmas-themed VS Code extension with snow effects, ASCII tree simulator, and festive color theme",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "icon": "images/icon.png",
   "repository": {
     "type": "git",
@@ -67,10 +67,10 @@
         },
         "christmas.snow.density": {
           "type": "number",
-          "default": 25,
-          "minimum": 5,
-          "maximum": 100,
-          "description": "Number of snowflakes to display at once."
+          "default": 100,
+          "minimum": 10,
+          "maximum": 200,
+          "description": "Number of snowflakes per 100 lines of code. Higher values = more snow."
         },
         "christmas.snow.overlay": {
           "type": "boolean",
