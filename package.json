@@ -1,6 +1,6 @@
 {
-  "name": "christmas",
-  "displayName": "Christmas",
+  "name": "Good-Night-Christmas",
+  "displayName": "Good-Night-Christmas",
   "description": "A Christmas-themed VS Code extension with snow effects, ASCII tree simulator, and festive color theme",
   "version": "0.0.1",
   "icon": "images/icon.png",

@@ -68,6 +68,17 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.registerWebviewViewProvider('christmas.tree', treeProvider)
     );
 
+    // Listen for active editor changes to reset snow for new files
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(editor => {
+            if (isSnowEnabled && editor) {
+                // Restart snow for the new editor
+                stopEditorSnow();
+                startEditorSnow();
+            }
+        })
+    );
+
     // Command: Toggle Snow Effect (Editor Overlay)
     const toggleSnowCommand = vscode.commands.registerCommand('christmas.toggleSnow', () => {
         if (isSnowEnabled) {
