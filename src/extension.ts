@@ -341,8 +341,8 @@ function startEditorSnow() {
         snowPositions.forEach((snow) => {
             snow.row += snow.speed;
             
-            // Slight random sway: -2 to +1 range from current position
-            const sway = Math.floor(Math.random() * 4) - 2; // -2, -1, 0, +1
+            // Balanced sway: -1, 0, +1 with equal probability (average = 0)
+            const sway = Math.floor(Math.random() * 3) - 1; // -1, 0, +1
             snow.col = Math.max(0, Math.min(maxCol - 1, snow.col + sway));
             
             // Wrap around when reaching bottom
