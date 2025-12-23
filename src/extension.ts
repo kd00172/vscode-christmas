@@ -72,9 +72,27 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor(editor => {
             if (isSnowEnabled && editor) {
-                // Restart snow for the new editor
-                stopEditorSnow();
-                startEditorSnow();
+                // Clear old decorations and recalculate for new editor
+                // Don't restart interval, just recalculate positions
+                snowDecorations.forEach(d => d.dispose());
+                snowDecorations = [];
+                
+                // Recalculate maxCol and reset positions for new document
+                let maxCol = 40;
+                for (let i = 0; i < editor.document.lineCount; i++) {
+                    const lineLen = editor.document.lineAt(i).text.length;
+                    if (lineLen > maxCol) {maxCol = lineLen;}
+                }
+                maxCol = Math.min(maxCol, 120);
+                
+                const totalLines = editor.document.lineCount;
+                const config = getSnowConfig();
+                
+                // Redistribute snowflakes evenly across new document
+                snowPositions.forEach((snow, i) => {
+                    snow.row = Math.floor((i / config.density) * totalLines);
+                    snow.col = Math.floor(Math.random() * maxCol);
+                });
             }
         })
     );
@@ -275,11 +293,11 @@ function startEditorSnow() {
     
     const totalLines = editor.document.lineCount;
 
-    // Initialize snowflakes with absolute positions
+    // Initialize snowflakes with absolute positions, evenly distributed
     for (let i = 0; i < density; i++) {
         snowPositions.push({
             col: Math.floor(Math.random() * maxCol),
-            row: Math.floor(Math.random() * totalLines), // spread across entire document
+            row: Math.floor((i / density) * totalLines), // evenly distribute across document
             flake: shapes[Math.floor(Math.random() * shapes.length)],
             speed: 1,
             swayOffset: 0
