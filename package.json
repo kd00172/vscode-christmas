@@ -1,0 +1,119 @@
+{
+  "name": "christmas",
+  "displayName": "Christmas",
+  "description": "A Christmas-themed VS Code extension with snow effects, ASCII tree simulator, and festive color theme",
+  "version": "0.0.1",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kd00172/vscode-christmas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kd00172/vscode-christmas/issues"
+  },
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Themes",
+    "Other"
+  ],
+  "publisher": "jae",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "christmas.toggleSnow",
+        "title": "Christmas: Toggle Snow in Editor ❄️"
+      },
+      {
+        "command": "christmas.merryChristmas",
+        "title": "Christmas: Merry Christmas! 🎅"
+      }
+    ],
+    "views": {
+      "panel": [
+        {
+          "type": "webview",
+          "id": "christmas.tree",
+          "name": "🎄 Christmas Tree"
+        }
+      ]
+    },
+    "themes": [
+      {
+        "label": "Christmas Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/christmas-dark-theme.json"
+      }
+    ],
+    "configuration": {
+      "title": "Christmas",
+      "properties": {
+        "christmas.snow.shapes": {
+          "type": "string",
+          "default": "❄❅❆✻✼·°",
+          "description": "Characters to use as snowflakes. Each character will be used randomly."
+        },
+        "christmas.snow.interval": {
+          "type": "number",
+          "default": 900,
+          "minimum": 100,
+          "maximum": 3000,
+          "description": "Animation interval in milliseconds. Lower = faster snow."
+        },
+        "christmas.snow.density": {
+          "type": "number",
+          "default": 25,
+          "minimum": 5,
+          "maximum": 100,
+          "description": "Number of snowflakes to display at once."
+        },
+        "christmas.snow.overlay": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, snow falls over text. If false, snow falls after line endings."
+        },
+        "christmas.snow.colorLight": {
+          "type": "string",
+          "default": "#FFD700",
+          "description": "Snow color for light themes (hex color)."
+        },
+        "christmas.snow.colorDark": {
+          "type": "string",
+          "default": "#FFFFFF",
+          "description": "Snow color for dark themes (hex color)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.107.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.48.1",
+    "eslint": "^9.39.1",
+    "esbuild": "^0.27.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
